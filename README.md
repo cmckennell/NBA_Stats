@@ -7,6 +7,8 @@ totals & opponent totals
 per game & opponent per game statistics
 per 100 possessions & opponent per 100 possessions statistics (starting from 1974)
 team summaries
+
+
 On the player side, there are 10 files:
 
 player totals
