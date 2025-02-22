@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+from pathlib import Path
 
 class Initial_Exploration:
     def __init__(self, dataset_file_path:str):
@@ -8,8 +9,7 @@ class Initial_Exploration:
             "csv":pd.read_csv,
             "xlsx": pd.read_excel
         }
-        extension = dataset_file_path.split(".")[-1]
-
+        extension = Path(dataset_file_path).suffix[1:]
         try:
             self.data = reader_dict[extension](dataset_file_path)
 
@@ -23,6 +23,10 @@ class Initial_Exploration:
 
     def shape(self):
         df = self.data
+        print("\n")
+        print("Shape")
+        print("============================================================\n")
+
         print(f"There are {df.shape[1]} columns and {df.shape[0]} rows.")
         print("------------------------------------------------------\n")
 
@@ -34,7 +38,8 @@ class Initial_Exploration:
     def data_types(self):
         df = self.data
         max_column_length = (max(len(col) for col in df.columns))
-        print("------------------------------------------------------")
+        print("Data Types")
+        print("============================================================\n")
 
         for col in df.columns:
             column_adjustment_spacing = " " * (max_column_length - len(col))
@@ -53,6 +58,9 @@ class Initial_Exploration:
             print(f"{adjusted_column_name} {value * 100: .2f}%")
 
         df = self.data
+
+        print("Missing Data")
+        print("============================================================\n")
         total_rows = len(df)
         max_column_length = (max(len(col) for col in df.columns))
 
@@ -68,15 +76,18 @@ class Initial_Exploration:
 
             if percent_present == 1:
                 bucket = 'none_missing'
+
+            elif percent_present == 0:
+                bucket = 'most_missing' 
+
             elif percent_present >= .85:
                 bucket = 'some_missing'
+
             else:
                 bucket = 'most_missing'
 
 
             buckets[bucket][col] = percent_present
-        
-        print("\n")
         
         for bucket, column_values in buckets.items():
             if bucket == 'none_missing':
@@ -99,8 +110,51 @@ class Initial_Exploration:
                 print("------------------------------------------------------")
                 for column, value in column_values.items():
                         print_formatted_data(column, max_column_length, value)
-                print('\n')
+                print('\n')        
+        print("------------------------------------------------------\n")
+
+    def duplicate_rows(self):
+        num_dupes = self.data.duplicated().sum()
+        print(f"Duplicate Rows Found: {num_dupes}")
+        print("============================================================\n")
+        if num_dupes > 0:
+            print(self.data[self.data.duplicated(keep=False)])  # Show duplicate rows if they exist
+            print("------------------------------------------------------\n")
+
+    def descriptive_statistics(self):
+
+        print(f"Summary Statistics:")
+        print("============================================================\n")
+
+        print(f"Quantitative Columns:")
+        print("------------------------------------------------------")
+        quantitative = self.data.describe()
+        print(quantitative)
+        print("------------------------------------------------------\n")
+
+        print(f"Qualitative Columns:")
+        print("------------------------------------------------------")
+        qualitative = self.data.describe(exclude=[np.number])
+        print(qualitative)
+        print("------------------------------------------------------\n")
+
+        print("Value Counts for Columns with less than 25 unique values:")
+        print("------------------------------------------------------\n")
+        df_cat = self.data.select_dtypes(include=['object', 'category'])
+        for column in df_cat.columns:
+            if len(df_cat[column].unique())  <= 25 :
+                print(df_cat[column].value_counts(normalize=True).mul(100).map(lambda x: f"{x: .2f}%"))
+                print("------------------------------------------------------\n")
+
+    def show_report(self):
+        self.shape()
+        self.data_types()
+        self.missing_data()
+        self.duplicate_rows()
+        self.descriptive_statistics()
 
 if __name__ == "__main__":
-    d = Initial_Exploration(r"C:\Users\Zcwmyxv\Downloads\NBA_Stats\data\raw\Player Season Info.csv")
-    d.missing_data()
+    d = Initial_Exploration(r"data/raw/Player Season Info.csv")
+    d.show_report()
+    # print(len(d.data.pos.unique()))
+    
