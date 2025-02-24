@@ -138,11 +138,19 @@ class InitialExploration:
         print(qualitative)
         print("------------------------------------------------------\n")
 
-        print("Value Counts for Columns with less than 25 unique values:")
-        print("------------------------------------------------------\n")
-        df_cat = self.data.select_dtypes(include=['object', 'category'])
+
+        # Value Counts for Columns with less than 25 values
+        columns_with_few_unique_values = []
+        df_cat = self.data.select_dtypes(include=['object', 'category', 'boolean'])
         for column in df_cat.columns:
-            if len(df_cat[column].unique())  <= 25 :
+            if len(df_cat[column].unique()) <= 25:
+                columns_with_few_unique_values.append(column)
+
+        # Only show if there are columns to do this for
+        if columns_with_few_unique_values:
+            print("Value Counts for Columns with less than 25 unique values:")
+            print("------------------------------------------------------\n")
+            for column in columns_with_few_unique_values:
                 print(df_cat[column].value_counts(normalize=True).mul(100).map(lambda x: f"{x: .2f}%"))
                 print("------------------------------------------------------\n")
 
@@ -154,7 +162,7 @@ class InitialExploration:
         self.descriptive_statistics()
 
 if __name__ == "__main__":
-    d = InitialExploration(r"data/raw/Player Season Info.csv")
-    d.show_report()
+    d = InitialExploration(r"data/raw/Player Career Info.csv")
+    d.descriptive_statistics()
     # print(len(d.data.pos.unique()))
     
