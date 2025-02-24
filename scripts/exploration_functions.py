@@ -3,7 +3,7 @@ import numpy as np
 import os
 from pathlib import Path
 
-class Initial_Exploration:
+class InitialExploration:
     def __init__(self, dataset_file_path:str):
         reader_dict = {
             "csv":pd.read_csv,
@@ -154,7 +154,7 @@ class Initial_Exploration:
         self.descriptive_statistics()
 
 if __name__ == "__main__":
-    d = Initial_Exploration(r"data/raw/Player Season Info.csv")
+    d = InitialExploration(r"data/raw/Player Season Info.csv")
     d.show_report()
     # print(len(d.data.pos.unique()))
     
